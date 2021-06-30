@@ -5,7 +5,6 @@
       <div class="newsletter">
         <Newsletter />
       </div>
-
     </div>
     <div id="image-wrapper">
       <img src="@assets/image_summer.png" alt="Image Summer" />

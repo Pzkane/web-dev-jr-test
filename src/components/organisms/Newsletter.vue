@@ -3,7 +3,9 @@
     <div class="container">
       <div v-if="!subscribed">
         <h1>Subscribe to newsletter</h1>
-        <h2>Subscribe to our newsletter and get 10% discount on pineapple glasses.</h2>
+        <h2>
+          Subscribe to our newsletter and get 10% discount on pineapple glasses.
+        </h2>
         <Input class="input" @validated="submit()" />
         <TermsOfService
           :displayError="tosInvalid"
@@ -69,7 +71,7 @@ import Thanks from "@components/organisms/Thanks.vue";
     TermsOfService,
     Thanks,
   },
-  emits: ["subscribed"]
+  emits: ["subscribed"],
 })
 export default class Newsletter extends Vue {
   private tosCheckbox = false;
