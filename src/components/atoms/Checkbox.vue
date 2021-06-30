@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="{ checked: checked }" @click="check($event)">
+  <div v-bind:class="{ checked: checked }" @click="check()">
     <svg
       v-if="checked"
       width="14"
@@ -19,13 +19,17 @@
 </template>
 
 <script lang="ts">
-import { Vue } from "vue-class-component";
+import { Options, Vue } from "vue-class-component";
 
+@Options({
+  emits: ["change"],
+})
 export default class Checkbox extends Vue {
   private checked = false;
 
-  public check(e: Event): void {
+  public check(): void {
     this.checked = !this.checked;
+    this.$emit("change", this.checked);
   }
 }
 </script>
@@ -39,7 +43,7 @@ div {
   border-radius: 3px;
   width: 26px;
   height: 26px;
-  border: 1px solid #4066a5;
+  border: 1px solid #e3e3e4;
 }
 svg {
   position: absolute;

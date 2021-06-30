@@ -1,5 +1,5 @@
 <template>
-  <button>
+  <button @click="$emit('click')" :disabled="disabled">
     <svg
       width="24"
       height="14"
@@ -17,11 +17,15 @@
 </template>
 
 <script lang="ts">
-import { Vue } from "vue-class-component";
+import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 
+@Options({
+  emits: ["click"],
+})
 export default class ArrowButton extends Vue {
   @Prop() readonly color?: string = undefined;
+  @Prop() readonly disabled?: boolean = false;
 
   public get getColor(): string {
     return this.color && this.color != undefined && this.color != ""
