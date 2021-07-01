@@ -27,13 +27,25 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import ArrowButton from "@components/atoms/ArrowButton.vue";
+import { Prop, Watch } from "vue-property-decorator";
 
 @Options({
   components: {
     ArrowButton,
   },
+  emits: ["validated"],
 })
+
 export default class Input extends Vue {
+  @Prop() readonly customError?: string;
+  
+  @Watch('customError')
+  onCustomErrorChanged(err: string): void {
+    console.log(err);
+    
+    this.error = err;
+  }
+
   private focus = false;
   private hover = false;
   private inputVal = "";
@@ -66,7 +78,7 @@ export default class Input extends Vue {
 
   public submit(): void {
     if (!this.validate()) return;
-    this.$emit("validated");
+    this.$emit("validated", this.inputVal);
   }
 
   public get disabled(): number {

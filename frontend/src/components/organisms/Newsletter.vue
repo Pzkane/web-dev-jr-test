@@ -6,7 +6,7 @@
         <h2>
           Subscribe to our newsletter and get 10% discount on pineapple glasses.
         </h2>
-        <Input class="input" @validated="submit()" />
+        <Input class="input" :customError="inputError" @validated="submit" />
         <TermsOfService
           :displayError="tosInvalid"
           @change="assignToS"
@@ -58,6 +58,7 @@
 </template>
 
 <script lang="ts">
+import { baseURL } from "@/constants";
 import { Vue, Options } from "vue-class-component";
 import Input from "@/components/molecules/Input.vue";
 import TermsOfService from "@/components/molecules/TermsOfService.vue";
@@ -77,14 +78,35 @@ export default class Newsletter extends Vue {
   private tosCheckbox = false;
   private tosInvalid = false;
   private subscribed = false;
+  private inputError = "";
 
-  public submit(): void {
+  public async submit(email: string): Promise<void> {
     if (this.tosInvalid) return;
     if (!this.tosCheckbox) {
       this.tosInvalid = true;
       return;
     }
-    this.subscribed = true;
+
+    const fData = new FormData;
+    fData.append("email", email);
+
+    try {
+      this.inputError = "";
+      const { data:data } = await this.axios.post(`${baseURL}/subscribe.php`, fData);
+
+      console.log(data);
+      
+
+      if (Object.prototype.hasOwnProperty.call(data, "error")) {
+        this.inputError = data.error;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(data, "success")) {
+        this.subscribed = true;
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   public assignToS(value: boolean): void {

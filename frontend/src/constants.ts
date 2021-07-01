@@ -1,0 +1,1 @@
+export const baseURL = "http://localhost/web-dev-jr-test/server";
