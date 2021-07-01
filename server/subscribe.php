@@ -1,12 +1,10 @@
 <?php
 
 require('config.php');
+require('utils.php');
+require('database/querybuilder.php');
 
-function echo_response(string $msg = "success", string $type = "success")
-{
-    $er_arr[$type] = $msg;
-    echo json_encode($er_arr);
-}
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
 if (!isset($_POST['email']))
 {
@@ -30,8 +28,11 @@ if (!preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((
 
 $conn = $db_instance->get_connection();
 
-$p_stmt = $conn->prepare("insert into subscriptions (email) values (?)");
-$p_stmt->bind_param("s", $email);
+$p_stmt = (new QueryBuilder)
+    ->insert('subscriptions', 'email')
+    ->values('?')
+    ->prepare($conn)
+    ->bind("s", $email);
 
 if ($p_stmt->execute())
 {

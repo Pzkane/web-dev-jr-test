@@ -4,7 +4,7 @@ require('../config.php');
 
 class Subscriptions
 {
-    static function up($conn)
+    static function up($conn): void
     {
         $sql = "
             create table subscriptions (
@@ -22,7 +22,7 @@ class Subscriptions
         }
     }
 
-    static function down($conn)
+    static function down($conn): void
     {
         $sql = "
             drop table if exists subscriptions;
@@ -37,12 +37,12 @@ class Subscriptions
     }
 }
 
-function schema_up($conn)
+function schema_up($conn): void
 {
     Subscriptions::up($conn);
 }
 
-function schema_down($conn)
+function schema_down($conn): void
 {
     Subscriptions::down($conn);
 }

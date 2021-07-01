@@ -21,7 +21,7 @@ class Database
         $this->conn->close();
     }
 
-    function get_connection()
+    function get_connection(): object
     {
         return $this->conn;
     }
