@@ -35,14 +35,11 @@ import { Prop, Watch } from "vue-property-decorator";
   },
   emits: ["validated"],
 })
-
 export default class Input extends Vue {
   @Prop() readonly customError?: string;
-  
-  @Watch('customError')
+
+  @Watch("customError")
   onCustomErrorChanged(err: string): void {
-    console.log(err);
-    
     this.error = err;
   }
 

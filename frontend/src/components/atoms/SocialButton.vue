@@ -26,8 +26,6 @@ export default class SocialButton extends Vue {
 
   public get getStaticPath(): string {
     let svgImg = require("@assets/" + this.imageFile);
-    console.log(svgImg);
-
     return svgImg;
   }
 
