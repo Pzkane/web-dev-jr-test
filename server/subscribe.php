@@ -12,7 +12,7 @@ if (!isset($_POST['email']))
     return;
 }
 
-$email = htmlspecialchars($_POST['email']);
+$email = strtolower(htmlspecialchars($_POST['email']));
 
 if (preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.co)|(([a-zA-Z\-0-9]+\.)+co))$/i', $email))
 {
@@ -26,13 +26,14 @@ if (!preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((
     return;
 }
 
-$conn = $db_instance->get_connection();
+preg_match('/@.+/i', $email, $domain);
 
+$conn = $db_instance->get_connection();
 $p_stmt = (new QueryBuilder)
-    ->insert('subscriptions', 'email')
-    ->values('?')
+    ->insert('subscriptions', 'email', 'domain')
+    ->values('?', '?')
     ->prepare($conn)
-    ->bind("s", $email);
+    ->bind("ss", $email, $domain[0]);
 
 if ($p_stmt->execute())
 {
@@ -42,7 +43,7 @@ if ($p_stmt->execute())
     {
         echo_response("This e-mail is already subscribed", "error");
     } else {
-        echo_response("Error", "error");
+        echo_response($p_stmt->error, "error");
     }
 }
 
