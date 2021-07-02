@@ -17,7 +17,7 @@ interface StyleVars {
 }
 
 export default class SocialButton extends Vue {
-  @Prop({ required: true }) readonly imageFile?: string;
+  @Prop({ required: true }) readonly imageFile!: string;
   @Prop() readonly onHoverBgColor?: string;
   @Prop() readonly onClickBgColor?: string;
   @Prop() readonly onHoverBorderColor?: string;
