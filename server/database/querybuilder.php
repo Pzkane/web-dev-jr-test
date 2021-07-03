@@ -9,25 +9,47 @@ class QueryBuilder
     private $insertCols = array();
     private $values = array();
     private $from = array();
+    private $order_by = array();
+    private $limit_by = array();
+    private $group_by = array();
+    private $delete = false;
 
     private $prep_stmt;
 
     public function __toString(): string
     {
         $where = $this->conditions === [] ? '' : ' where ' . implode(' and ', $this->conditions);
+        $order_by = $this->order_by === [] ? '' : ' order by ' . implode(' ', $this->order_by);
+        $group_by = $this->group_by === [] ? '' : ' group by ' . implode(' ', $this->group_by);
+        $limit = $this->limit_by === [] ? '' : ' limit ' . $this->limit_by[0] . (count($this->limit_by) > 1 ? ' offset ' . $this->limit_by[1] : '');
 
-        if (!empty($this->fields))
+        if ($this->delete) // delete
         {
-            return 'select ' . implode(', ', $this->fields)
-                . ' from ' . implode(', ', $this->from)
+            if ($this->from === []) throw new Exception("QueryBuilder::DELETE::Table not specified.");
+            
+            $sql = 'delete from ' . $this->from[0]
                 . $where;
+            return $sql;
         }
 
-        if (!empty($this->insert))
+        if (!empty($this->fields)) // select
         {
-            return 'insert into ' . $this->insert
+            $sql =  'select ' . implode(', ', $this->fields)
+                . ' from ' . implode(', ', $this->from)
+                . $where
+                . $group_by
+                . $order_by
+                . $limit;
+            // echo $sql;
+            return $sql;
+        }
+
+        if (!empty($this->insert)) // insert
+        {
+            $sql = 'insert into ' . $this->insert
                 . (!empty($this->insertCols) ? ' (' . implode(', ', $this->insertCols) . ')' : null)
                 . ' values '. '('. implode(', ', $this->values) .')';
+            return $sql;
         }
     }
 
@@ -65,9 +87,17 @@ class QueryBuilder
         return $this;
     }
 
+    public function delete(): self
+    {
+        $this->delete = true;
+        return $this;
+    }
+
     public function values(string ...$values): self
     {
-        $this->values = $values;
+        foreach ($values as $value) {
+            $this->values[] = $value;
+        }
         return $this;
     }
 
@@ -81,11 +111,36 @@ class QueryBuilder
 
     public function from(string $table, ?string $alias = null): self
     {
-        if ($alias === null) {
+        if ($alias === null)
+        {
             $this->from[] = $table;
         } else {
             $this->from[] = "${table} as ${alias}";
         }
+        return $this;
+    }
+
+    public function orderBy(string $table, string $clause): self
+    {
+        array_push($this->order_by, $table);
+        array_push($this->order_by, $clause);
+        return $this;
+    }
+
+    public function limit(int $limit_by, ?int $offset): self
+    {
+        array_push($this->limit_by, $limit_by);
+
+        if ($offset !== null)
+        {
+            array_push($this->limit_by, $offset);
+        }
+        return $this;
+    }
+
+    public function groupBy(string $column): self
+    {
+        array_push($this->group_by, $column);
         return $this;
     }
 }

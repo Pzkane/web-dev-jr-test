@@ -10,6 +10,7 @@ class Subscriptions
             create table subscriptions (
                 id bigint primary key auto_increment,
                 email varchar(255) unique not null,
+                domain varchar(255) not null,
                 created_at timestamp default current_timestamp
             );
         ";

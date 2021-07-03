@@ -7,5 +7,6 @@ $DBUSERNAME = "root";
 $DBPASSWORD = "";
 $DBNAME = "web_dev_email";
 
+$DEBUG = true;
+
 $db_instance = new Database($DBHOST, $DBUSERNAME, $DBPASSWORD, $DBNAME);
-return $db_instance;
