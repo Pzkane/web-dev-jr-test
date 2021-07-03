@@ -10,6 +10,8 @@ if ($DEBUG)
     header('Access-Control-Allow-Methods: *');
 }
 
+$type = $_GET['type'];
+
 $conn = $db_instance->get_connection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
