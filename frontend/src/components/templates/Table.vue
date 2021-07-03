@@ -116,7 +116,7 @@ export default class Table extends Vue {
   private sID = 0;
   private params: ParamsProps = {
     type: "records",
-    orderByColumn: "id",
+    orderByColumn: "created_at",
     orderBy: "asc",
     offset: 0,
     pagination: this.pagination,
@@ -237,7 +237,7 @@ export default class Table extends Vue {
         break;
 
       case 2:
-        this.params.orderByColumn = "id";
+        this.params.orderByColumn = "created_at";
         this.params.orderBy = "asc";
         this.sID = 0;
         break;
@@ -264,7 +264,7 @@ export default class Table extends Vue {
         break;
 
       case 2:
-        this.params.orderByColumn = "id";
+        this.params.orderByColumn = "created_at";
         this.params.orderBy = "asc";
         this.sEmail = 0;
         break;
@@ -291,8 +291,8 @@ export default class Table extends Vue {
         break;
 
       case 2:
-        this.params.orderByColumn = null;
-        this.params.orderBy = null;
+        this.params.orderByColumn = "created_at";
+        this.params.orderBy = "asc";
         this.sTime = 0;
         break;
     }

@@ -42,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     return;
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
     $type = $_GET['type'];
