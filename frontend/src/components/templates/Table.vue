@@ -2,6 +2,7 @@
   <div class="wrapper">
     <div class="container">
       <div>
+        <DebouncedInput @out="searchEmails" :label="'Search:'" :delay="500" />
         <table>
           <thead>
             <tr>
@@ -58,8 +59,8 @@
             <button @click="exportEmails">Export e-mails</button>
           </div>
           <div>
-            <button @click="prev">&lt;</button>
-            <button @click="next">&gt;</button>
+            <button v-if="params.offset" @click="prev">&lt;</button>
+            <button v-if="showNext" @click="next">&gt;</button>
           </div>
         </div>
       </div>
@@ -78,6 +79,7 @@ import { Options, Vue } from "vue-class-component";
 import { serverURL } from "@/constants";
 import { OptionType } from "@/components/molecules/LabeledSelect.vue";
 import LabeledSelect from "@/components/molecules/LabeledSelect.vue";
+import DebouncedInput from "@/components/molecules/DebouncedInput.vue";
 
 interface EmailType {
   id: number;
@@ -93,7 +95,8 @@ interface ParamsProps {
   orderBy?: string | null;
   offset: number;
   pagination: number;
-  domain?: string;
+  domain?: string | null;
+  emailString?: string | null;
 }
 
 interface ParamsPropsTypeOnly {
@@ -105,6 +108,7 @@ type ParamsType = ParamsProps | ParamsPropsTypeOnly;
 @Options({
   components: {
     LabeledSelect,
+    DebouncedInput,
   },
 })
 export default class Table extends Vue {
@@ -116,7 +120,7 @@ export default class Table extends Vue {
   private sID = 0;
   private params: ParamsProps = {
     type: "records",
-    orderByColumn: "id",
+    orderByColumn: "created_at",
     orderBy: "asc",
     offset: 0,
     pagination: this.pagination,
@@ -134,18 +138,28 @@ export default class Table extends Vue {
     this.fetchEmails(this.params);
   }
 
+  public get showNext(): boolean {
+    return this.emailRecords.length === this.params.pagination;
+  }
+
   public async fetchEmails(
     params: ParamsType | undefined = undefined
   ): Promise<void> {
     try {
-      const { data: data } = await this.axios.get(`${serverURL}/emails.php`, {
-        params,
-      });
-      if (Object.prototype.hasOwnProperty.call(data, "records")) {
-        if (data.records.length) this.emailRecords = data.records;
-        else {
-          this.params.offset ? (this.params.offset -= this.pagination) : null;
+      let fData = new FormData();
+      if (params)
+        for (const entry of Object.entries(params)) {
+          if (entry[1]) {
+            fData.append(entry[0], entry[1]);
+          }
         }
+
+      const { data: data } = await this.axios.post(
+        `${serverURL}/emails.php`,
+        fData
+      );
+      if (Object.prototype.hasOwnProperty.call(data, "records")) {
+        this.emailRecords = data.records;
       } else if (Object.prototype.hasOwnProperty.call(data, "domains")) {
         if (data.domains.length) {
           for (const domain of data.domains) {
@@ -180,7 +194,7 @@ export default class Table extends Vue {
       let fData = new FormData();
       fData.append("email_ids", JSON.stringify(this.checkedEmails));
       const { data: resultCSV } = await this.axios.post(
-        `${serverURL}/emails`,
+        `${serverURL}/email_export`,
         fData
       );
       let blob = new Blob([resultCSV], { type: "application/csv" });
@@ -237,7 +251,7 @@ export default class Table extends Vue {
         break;
 
       case 2:
-        this.params.orderByColumn = "id";
+        this.params.orderByColumn = "created_at";
         this.params.orderBy = "asc";
         this.sID = 0;
         break;
@@ -264,7 +278,7 @@ export default class Table extends Vue {
         break;
 
       case 2:
-        this.params.orderByColumn = "id";
+        this.params.orderByColumn = "created_at";
         this.params.orderBy = "asc";
         this.sEmail = 0;
         break;
@@ -291,8 +305,8 @@ export default class Table extends Vue {
         break;
 
       case 2:
-        this.params.orderByColumn = null;
-        this.params.orderBy = null;
+        this.params.orderByColumn = "created_at";
+        this.params.orderBy = "asc";
         this.sTime = 0;
         break;
     }
@@ -300,7 +314,7 @@ export default class Table extends Vue {
   }
 
   public applyPagination(): void {
-    this.params.pagination = this.pagination;
+    this.params.pagination = +this.pagination;
     this.params.offset = 0;
     this.fetchEmails(this.params);
   }
@@ -332,9 +346,9 @@ export default class Table extends Vue {
     this.determineAllCheck();
   }
 
-  public filterByDomains(domain: string): void {
+  public filterByDomains(domain: string | null): void {
     this.params.offset = 0;
-    this.params.domain = domain;
+    this.params.domain = domain || null;
     this.fetchEmails(this.params);
   }
 
@@ -373,6 +387,11 @@ export default class Table extends Vue {
     this.checks === this.emailRecords.length
       ? (this.allCheck = true)
       : (this.allCheck = false);
+  }
+
+  public searchEmails(value: string): void {
+    this.params.emailString = value;
+    this.fetchEmails(this.params);
   }
 }
 </script>
